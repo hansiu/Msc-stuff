@@ -81,7 +81,6 @@ class HiCChromosome:
         # load from self.parent_map.folder and self.chrom
         filename = 'mtx-' + self.chrom + '-' + self.chrom + '.npy'
         if not self.loaded:
-            # logger.info('Loading Hic-Map: ' + self.parent_map.folder + filename)
             self.map = np.load(self.parent_map.folder + filename)
             if not np.allclose(self.map.transpose(), self.map):
                 logger.warning('This map is not too symmetric')
@@ -105,7 +104,7 @@ class HiCChromosome:
         :return:
         """
         self.ISs = []
-        for b in range(self.size):  # for each bin in the chromosome
+        for b in range(self.size):
             self.ISs.append(self._calculate_IS_for_bin(b, square_size))
 
     def normalize_IS(self, square_size):
@@ -149,7 +148,6 @@ class HiCChromosome:
         # get the zero crossings
         zero_crossings = list(np.where(np.diff(np.sign(np.nan_to_num(self.deltas))))[0]) + list(
             np.where(np.array(self.deltas) == 0.0)[0])
-        # discard of those that occur at peaks - so we should find which ones are maximums?
         border_info.update([(z, 0.0, 0) for z in zero_crossings])
         gradient = np.gradient(self.deltas)
         extremes = list(np.where(np.diff(np.sign(np.nan_to_num(gradient))))[0]) + list(np.where(gradient == 0.0)[0])
@@ -182,10 +180,10 @@ class HiCChromosome:
                 next_min = self.find_next_min(i, square_size)
                 dist_to_next_max = next_max[0] - b[0]
                 dist_to_last_max = b[0] - last_max[0] if last_max is not None else 0
-                diff_max = dist_to_last_max - dist_to_next_max  # should be on the minus side
+                diff_max = dist_to_last_max - dist_to_next_max 
                 dist_to_next_min = next_min[0] - b[0]
                 dist_to_last_min = b[0] - last_min[0] if last_min is not None else 0
-                diff_min = dist_to_next_min - dist_to_last_min  # should be on the minus side
+                diff_min = dist_to_next_min - dist_to_last_min
 
                 if diff_max <= 0 and diff_min <= 0 and self.check_Si_threshold(
                         last_max[1] if last_max is not None else b[1],
